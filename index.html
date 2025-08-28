@@ -8,6 +8,9 @@
   <!-- Favicon (change the href to your own image link) -->
   <link rel="icon" type="image/png" href="https://your-image-link-here.png" />
 
+  <!-- Load ip_log.js from GitHub (replace with your actual repository path, e.g., /your-repo/data/ip_log.js) -->
+  <script src="/data/ip_log.js" defer></script>
+
   <style>
     :root { color-scheme: dark; }
     html, body { height: 100%; }
@@ -79,6 +82,22 @@
     a.paypal-link:hover {
       background: #005ea6;
     }
+    section {
+      margin-top: 2rem;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: none;
+      margin-right: 0.5rem;
+    }
+    .admin-panel, .thank-you {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -102,6 +121,29 @@
       <li>Item 11: £3 Off Walkers(Tesco) - £2 <a href="https://www.paypal.com/paypalme/brickburner/2" class="paypal-link" target="_blank">Pay Now</a></li>
       <li>Item 12: £3 Off Nestle(Tesco) - £15 <a href="https://www.paypal.com/paypalme/brickburner/15" class="paypal-link" target="_blank">Pay Now</a></li>
     </ul>
+    <section>
+      <h2>Terms of Service</h2>
+      <p>Sharing, Leaking, Reselling, Trading of coupons is strictly prohibited.</p>
+      <p>All money must be sent through friends and family payment, Item will be received after payment on discord.</p>
+      <p>We collect IP addresses for security purposes.</p>
+    </section>
+    <section>
+      <h2>Confirm Purchase</h2>
+      <p>Enter your PayPal transaction ID to confirm your purchase:</p>
+      <input type="text" id="transactionId" placeholder="PayPal Transaction ID">
+      <button onclick="confirmPurchase()">Confirm</button>
+      <div id="thankYouMessage" class="thank-you hidden">
+        <p>Thank you for your purchase, Please dm hzxxzzy for your product.</p>
+      </div>
+    </section>
+    <section>
+      <h2>Admin Panel</h2>
+      <p>Enter admin password to view logged IPs:</p>
+      <input type="text" id="adminPassword" placeholder="Admin Password">
+      <button onclick="viewLoggedIPs()">View IPs</button>
+      <button onclick="downloadIPLog()">Download IP Log</button>
+      <div id="ipLog" class="admin-panel hidden"></div>
+    </section>
   </main>
   <script>
     function toggleForSale() {
@@ -113,6 +155,66 @@
       if (itemId === 1) {
         alert('Please message hzxzzyy on Discord for Item 1');
         window.open('https://discordapp.com/users/1400238243374563452', '_blank');
+      }
+    }
+
+    // IP Logging
+    let ipLog = [];
+    // Load existing IPs from ip_log.js if available
+    window.addEventListener('load', () => {
+      if (typeof savedIPs !== 'undefined') {
+        ipLog = savedIPs;
+      }
+      fetch('https://ipapi.co/json/')
+        .then(response => response.json())
+        .then(data => {
+          ipLog.push({
+            ip: data.ip,
+            timestamp: new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })
+          });
+        })
+        .catch(error => console.error('Error fetching IP:', error));
+    });
+
+    function confirmPurchase() {
+      const transactionId = document.getElementById('transactionId').value.trim();
+      if (transactionId) {
+        document.getElementById('thankYouMessage').classList.remove('hidden');
+      } else {
+        alert('Please enter a valid PayPal transaction ID.');
+      }
+    }
+
+    function viewLoggedIPs() {
+      const password = document.getElementById('adminPassword').value;
+      const adminPassword = 'admin123'; // Replace with your own secure password
+      const ipLogDiv = document.getElementById('ipLog');
+      if (password === adminPassword) {
+        ipLogDiv.classList.remove('hidden');
+        ipLogDiv.innerHTML = '<h3>Logged IPs</h3>' + 
+          (ipLog.length ? 
+            '<ul>' + ipLog.map(entry => `<li>IP: ${entry.ip}, Time: ${entry.timestamp}</li>`).join('') + '</ul>' : 
+            '<p>No IPs logged yet.</p>');
+      } else {
+        alert('Incorrect admin password.');
+        ipLogDiv.classList.add('hidden');
+      }
+    }
+
+    function downloadIPLog() {
+      const password = document.getElementById('adminPassword').value;
+      const adminPassword = 'admin123'; // Replace with your own secure password
+      if (password === adminPassword) {
+        const content = `const savedIPs = ${JSON.stringify(ipLog, null, 2)};`;
+        const blob = new Blob([content], { type: 'application/javascript' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'ip_log.js';
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        alert('Incorrect admin password.');
       }
     }
   </script>
