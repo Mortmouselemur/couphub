@@ -33,13 +33,13 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay for text readability */
+      background: rgba(0, 0, 0, 0.5);
       z-index: 1;
     }
     main {
       max-width: 70ch;
       position: relative;
-      z-index: 2; /* Ensure content is above the overlay */
+      z-index: 2;
     }
     h1, p { margin: 0 0 1rem; }
     button {
@@ -85,7 +85,7 @@
     section {
       margin-top: 2rem;
     }
-    input[type="text"] {
+    input[type="text"], input[type="date"] {
       padding: 0.5rem;
       font-size: 1rem;
       border-radius: 5px;
@@ -97,6 +97,22 @@
       padding: 1rem;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 5px;
+    }
+    .ip-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    .ip-table th, .ip-table td {
+      padding: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      text-align: left;
+    }
+    .ip-table th {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .filter-controls {
+      margin-bottom: 1rem;
     }
   </style>
 </head>
@@ -136,16 +152,68 @@
         <p>Thank you for your purchase, Please dm hzxxzzy for your product.</p>
       </div>
     </section>
-    <section>
-      <h2>Admin Panel</h2>
-      <p>Enter admin password to view logged IPs:</p>
+    <section id="adminSection" class="hidden">
+      <h2>Admin Login</h2>
       <input type="text" id="adminPassword" placeholder="Admin Password">
-      <button onclick="viewLoggedIPs()">View IPs</button>
-      <button onclick="downloadIPLog()">Download IP Log</button>
+      <button onclick="signIn()">Sign In</button>
+      <div class="filter-controls hidden" id="filterControls">
+        <label for="dateFilter">Filter by Date:</label>
+        <input type="date" id="dateFilter" onchange="filterIPsByDate()">
+      </div>
       <div id="ipLog" class="admin-panel hidden"></div>
+      <button id="downloadButton" class="hidden" onclick="downloadIPLog()">Download IP Log</button>
     </section>
   </main>
   <script>
+    // IP Logging
+    let ipLog = [];
+    
+    // Load IPs from localStorage or ip_log.js
+    window.addEventListener('load', () => {
+      // Load from localStorage if available
+      const storedIPs = localStorage.getItem('ipLog');
+      if (storedIPs) {
+        ipLog = JSON.parse(storedIPs);
+      }
+      // Load from ip_log.js if available
+      if (typeof savedIPs !== 'undefined') {
+        ipLog = [...new Set([...ipLog, ...savedIPs].map(entry => JSON.stringify(entry)))].map(entry => JSON.parse(entry));
+        localStorage.setItem('ipLog', JSON.stringify(ipLog));
+      }
+      // Check if current IP is already logged in this session
+      const sessionIP = sessionStorage.getItem('currentIP');
+      if (!sessionIP) {
+        fetch('https://ipapi.co/json/')
+          .then(response => response.json())
+          .then(data => {
+            const newEntry = {
+              ip: data.ip,
+              timestamp: new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }),
+              country: data.country_name || 'Unknown',
+              userAgent: navigator.userAgent
+            };
+            // Only add if IP hasn't been logged in the last hour
+            const recentLog = ipLog.find(entry => 
+              entry.ip === newEntry.ip && 
+              (new Date() - new Date(entry.timestamp)) < 3600000
+            );
+            if (!recentLog) {
+              ipLog.push(newEntry);
+              localStorage.setItem('ipLog', JSON.stringify(ipLog));
+              sessionStorage.setItem('currentIP', data.ip);
+            }
+          })
+          .catch(error => console.error('Error fetching IP:', error));
+      }
+    });
+
+    // Secret key combination to show admin login (Ctrl + Shift + A)
+    document.addEventListener('keydown', (event) => {
+      if (event.ctrlKey && event.shiftKey && event.key === 'A') {
+        document.getElementById('adminSection').classList.remove('hidden');
+      }
+    });
+
     function toggleForSale() {
       const list = document.getElementById('forSaleList');
       list.classList.toggle('hidden');
@@ -158,24 +226,6 @@
       }
     }
 
-    // IP Logging
-    let ipLog = [];
-    // Load existing IPs from ip_log.js if available
-    window.addEventListener('load', () => {
-      if (typeof savedIPs !== 'undefined') {
-        ipLog = savedIPs;
-      }
-      fetch('https://ipapi.co/json/')
-        .then(response => response.json())
-        .then(data => {
-          ipLog.push({
-            ip: data.ip,
-            timestamp: new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' })
-          });
-        })
-        .catch(error => console.error('Error fetching IP:', error));
-    });
-
     function confirmPurchase() {
       const transactionId = document.getElementById('transactionId').value.trim();
       if (transactionId) {
@@ -185,25 +235,72 @@
       }
     }
 
-    function viewLoggedIPs() {
+    function signIn() {
       const password = document.getElementById('adminPassword').value;
-      const adminPassword = 'admin123'; // Replace with your own secure password
+      const adminPassword = 'admin123'; // WARNING: Replace with a secure password and store securely
       const ipLogDiv = document.getElementById('ipLog');
+      const filterControls = document.getElementById('filterControls');
+      const downloadButton = document.getElementById('downloadButton');
       if (password === adminPassword) {
         ipLogDiv.classList.remove('hidden');
-        ipLogDiv.innerHTML = '<h3>Logged IPs</h3>' + 
-          (ipLog.length ? 
-            '<ul>' + ipLog.map(entry => `<li>IP: ${entry.ip}, Time: ${entry.timestamp}</li>`).join('') + '</ul>' : 
-            '<p>No IPs logged yet.</p>');
+        filterControls.classList.remove('hidden');
+        downloadButton.classList.remove('hidden');
+        renderIPLog(ipLog);
       } else {
         alert('Incorrect admin password.');
         ipLogDiv.classList.add('hidden');
+        filterControls.classList.add('hidden');
+        downloadButton.classList.add('hidden');
       }
+    }
+
+    function renderIPLog(logs) {
+      const ipLogDiv = document.getElementById('ipLog');
+      if (logs.length) {
+        ipLogDiv.innerHTML = `
+          <h3>Logged IPs</h3>
+          <table class="ip-table">
+            <thead>
+              <tr>
+                <th>IP Address</th>
+                <th>Timestamp</th>
+                <th>Country</th>
+                <th>User Agent</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${logs.map(entry => `
+                <tr>
+                  <td>${entry.ip}</td>
+                  <td>${entry.timestamp}</td>
+                  <td>${entry.country}</td>
+                  <td>${entry.userAgent}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else {
+        ipLogDiv.innerHTML = '<p>No IPs logged yet.</p>';
+      }
+    }
+
+    function filterIPsByDate() {
+      const dateFilter = document.getElementById('dateFilter').value;
+      if (!dateFilter) {
+        renderIPLog(ipLog);
+        return;
+      }
+      const selectedDate = new Date(dateFilter).toLocaleDateString('en-GB');
+      const filteredLogs = ipLog.filter(entry => 
+        entry.timestamp.includes(selectedDate)
+      );
+      renderIPLog(filteredLogs);
     }
 
     function downloadIPLog() {
       const password = document.getElementById('adminPassword').value;
-      const adminPassword = 'admin123'; // Replace with your own secure password
+      const adminPassword = 'admin123'; // WARNING: Replace with a secure password and store securely
       if (password === adminPassword) {
         const content = `const savedIPs = ${JSON.stringify(ipLog, null, 2)};`;
         const blob = new Blob([content], { type: 'application/javascript' });
