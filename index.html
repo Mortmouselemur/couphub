@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,23 +10,39 @@
     html, body { height: 100%; }
     body {
       margin: 0;
-      background: #000;
+      background: #000 url('https://media.discordapp.net/attachments/1306684492391383076/1410635744258686976/Couphub.png?ex=68b1bc69&is=68b06ae9&hm=5c21a10c3f560a98787623fcd36e87826ecb14f13549e872cadbe69eb92d2c93&=&format=webp&quality=lossless') no-repeat center center fixed;
+      background-size: cover;
       color: #fff;
       font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 2rem;
+      position: relative;
     }
-    main { max-width: 70ch; }
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay for text readability */
+      z-index: 1;
+    }
+    main {
+      max-width: 70ch;
+      position: relative;
+      z-index: 2; /* Ensure content is above the overlay */
+    }
     h1, p { margin: 0 0 1rem; }
   </style>
 </head>
 <body>
   <main>
-    <h1>Couphub</h1>
-    <p>This is a text-only website with a black background.</p>
-    <p>Replace this text with your own content.</p>
+    <h1>Where is Couphub?</h1>
+    <p>Couphub has shut down and will not be returning anytime soon, We will not be providing any coupons nor will we be teaching anyone(for free). If you would like to buy some private personal coupons(Or learn how to make coupons), Dm hzxzzyy on Discord.</p>
+    <p>Replace the background image URL in the CSS with your own image link.</p>
   </main>
 </body>
 </html>
