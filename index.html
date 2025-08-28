@@ -6,7 +6,7 @@
   <title>Couphub</title>
 
   <!-- Favicon (change the href to your own image link) -->
-  <link rel="icon" type="image/png" href="https://your-image-link-here.png" />
+  <link rel="icon" type="image/png" href="https://cdn.discordapp.com/attachments/1306684492391383076/1410732231730663575/Couphub_Watermark.png?ex=68b21646&is=68b0c4c6&hm=c99108b8e9311e3e9279d8d546297459d896b3f936fb22141475c05ad572f35d&" />
 
   <!-- Load ip_log.js from GitHub (replace with your actual repository path, e.g., /your-repo/data/ip_log.js) -->
   <script src="/data/ip_log.js" defer></script>
@@ -55,32 +55,8 @@
     button:hover {
       background: #555;
     }
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 1rem 0;
-    }
-    li {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
     .hidden {
       display: none;
-    }
-    a.paypal-link {
-      background: #0070ba;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      text-decoration: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      transition: background 0.3s;
-    }
-    a.paypal-link:hover {
-      background: #005ea6;
     }
     section {
       margin-top: 2rem;
@@ -92,7 +68,7 @@
       border: none;
       margin-right: 0.5rem;
     }
-    .admin-panel, .thank-you {
+    .admin-panel {
       margin-top: 1rem;
       padding: 1rem;
       background: rgba(255, 255, 255, 0.1);
@@ -121,35 +97,13 @@
     <h1>Where is Couphub?</h1>
     <p>Couphub has shut down and will not be returning anytime soon.</p> 
     <p>As good as couphub was, Every place has a time and an ending.🦇</p>
-    <p><strong>Note:</strong> When paying via PayPal, please select "Sending to a friend" (Friends and Family) to avoid fees.</p>
-    <button onclick="toggleForSale()">View Store</button>
-    <ul id="forSaleList" class="hidden">
-      <li>Item 1: Tesco and Co op Money Off & Product coupon making method - Dm hzxzzyy on discord(Not cheap) <button onclick="buyItem(1)">Contact on Discord</button></li>
-      <li>Item 2: Waitrose Coupon Making Method(Money Off) - £50 <a href="https://www.paypal.com/paypalme/brickburner/50" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 3: Boots Coupon Making Method(Money Off) - £50 <a href="https://www.paypal.com/paypalme/brickburner/50" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 4: £5 Off Lucozade(Tesco) - £10 <a href="https://www.paypal.com/paypalme/brickburner/10" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 5: £2 Off Lucozade(Tesco) - £2 <a href="https://www.paypal.com/paypalme/brickburner/2" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 6: £1 Off Lucozade(tesco) - £1 <a href="https://www.paypal.com/paypalme/brickburner/1" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 7: £1 Off Coca Cola(Tesco) - £1 <a href="https://www.paypal.com/paypalme/brickburner/1" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 8: £5 Off Ferrero(Tesco) - £5 <a href="https://www.paypal.com/paypalme/brickburner/5" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 9: £1 Off Ferrero(Tesco) - £1 <a href="https://www.paypal.com/paypalme/brickburner/1" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 10: £2 Off Crisps(Tesco) - £2 <a href="https://www.paypal.com/paypalme/brickburner/2" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 11: £3 Off Walkers(Tesco) - £2 <a href="https://www.paypal.com/paypalme/brickburner/2" class="paypal-link" target="_blank">Pay Now</a></li>
-      <li>Item 12: £3 Off Nestle(Tesco) - £15 <a href="https://www.paypal.com/paypalme/brickburner/15" class="paypal-link" target="_blank">Pay Now</a></li>
-    </ul>
     <section>
-      <h2>Terms of Service</h2>
-      <p>Sharing, Leaking, Reselling, Trading of coupons is strictly prohibited.</p>
-      <p>All money must be sent through friends and family payment, Item will be received after payment on discord.</p>
-      <p>We collect IP addresses for security purposes.</p>
-    </section>
-    <section>
-      <h2>Confirm Purchase</h2>
-      <p>Enter your PayPal transaction ID to confirm your purchase:</p>
-      <input type="text" id="transactionId" placeholder="PayPal Transaction ID">
-      <button onclick="confirmPurchase()">Confirm</button>
-      <div id="thankYouMessage" class="thank-you hidden">
-        <p>Thank you for your purchase, Please dm hzxxzzy for your product.</p>
+      <button onclick="togglePoll()">couphub return?</button>
+      <div id="poll" class="hidden">
+        <!-- Create a poll on https://www.opinionstage.com/ with question "Would you like Couphub to return?" options Yes/No, set block repeat voting to browser & IP.
+             Then copy the general embed code and paste here. Example format: -->
+        <div class="os-poll-widget" data-path="/polls/YOUR_POLL_PATH"></div>
+        <script async src="https://www.opinionstage.com/assets/widgets.js"></script>
       </div>
     </section>
     <section id="adminSection" class="hidden">
@@ -213,27 +167,6 @@
         document.getElementById('adminSection').classList.remove('hidden');
       }
     });
-
-    function toggleForSale() {
-      const list = document.getElementById('forSaleList');
-      list.classList.toggle('hidden');
-    }
-
-    function buyItem(itemId) {
-      if (itemId === 1) {
-        alert('Please message hzxzzyy on Discord for Item 1');
-        window.open('https://discordapp.com/users/1400238243374563452', '_blank');
-      }
-    }
-
-    function confirmPurchase() {
-      const transactionId = document.getElementById('transactionId').value.trim();
-      if (transactionId) {
-        document.getElementById('thankYouMessage').classList.remove('hidden');
-      } else {
-        alert('Please enter a valid PayPal transaction ID.');
-      }
-    }
 
     function signIn() {
       const password = document.getElementById('adminPassword').value;
@@ -313,6 +246,11 @@
       } else {
         alert('Incorrect admin password.');
       }
+    }
+
+    function togglePoll() {
+      const poll = document.getElementById('poll');
+      poll.classList.toggle('hidden');
     }
   </script>
 </body>
