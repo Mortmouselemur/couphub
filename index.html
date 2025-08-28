@@ -8,6 +8,9 @@
   <!-- Favicon (change the href to your own image link) -->
   <link rel="icon" type="image/png" href="https://your-image-link-here.png" />
 
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AUQ7lr4siNnvgTMlUsy-vzBjJ7JPqG9UU7kl3TUPLRzgodB0HD2aKLywcorvQptav9pxhjr3PiAFuDWH&currency=GBP"></script>
+
   <style>
     :root { color-scheme: dark; }
     html, body { height: 100%; }
@@ -67,6 +70,10 @@
     .hidden {
       display: none;
     }
+    .paypal-button-container {
+      display: inline-block;
+      min-height: 35px; /* Ensure space for PayPal button */
+    }
   </style>
 </head>
 <body>
@@ -76,28 +83,77 @@
     <p>As good as couphub was, Every place has a time and an ending.🦇</p>
     <button onclick="toggleForSale()">View Store</button>
     <ul id="forSaleList" class="hidden">
-      <li>Item 1: Tesco and Co op Money Off & Product coupon making method - Dm hzxzzyy on discord(Not cheap) <button onclick="buyItem()">Buy</button></li>
-      <li>Item 2: Waitrose Coupon Making Method(Money Off) - £50 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 3: Boots Coupon Making Method(Money Off) - £50 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 4: £5 Off Lucozade(Tesco) - £10 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 5: £2 Off Lucozade(Tesco) - £2 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 6: £1 Off Lucozade(tesco) - £1 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 7: £1 Off Coca Cola(Tesco) - £1 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 8: £5 Off Ferrero(Tesco) - £5 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 9: £1 Off Ferrero(Tesco) - £1 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 10: £2 Off Crisps(Tesco) - £2 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 11: £3 Off Walkers(Tesco) - £2 <button onclick="buyItem()">Buy</button></li>
-      <li>Item 12: £3 Off Nestle(Tesco) - £15 <button onclick="buyItem()">Buy</button></li>
+      <li>Item 1: Tesco and Co op Money Off & Product coupon making method - Dm hzxzzyy on discord(Not cheap) <button onclick="buyItem(1)">Contact on Discord</button></li>
+      <li>Item 2: Waitrose Coupon Making Method(Money Off) - £50 <div id="paypal-button-2" class="paypal-button-container"></div></li>
+      <li>Item 3: Boots Coupon Making Method(Money Off) - £50 <div id="paypal-button-3" class="paypal-button-container"></div></li>
+      <li>Item 4: £5 Off Lucozade(Tesco) - £10 <div id="paypal-button-4" class="paypal-button-container"></div></li>
+      <li>Item 5: £2 Off Lucozade(Tesco) - £2 <div id="paypal-button-5" class="paypal-button-container"></div></li>
+      <li>Item 6: £1 Off Lucozade(tesco) - £1 <div id="paypal-button-6" class="paypal-button-container"></div></li>
+      <li>Item 7: £1 Off Coca Cola(Tesco) - £1 <div id="paypal-button-7" class="paypal-button-container"></div></li>
+      <li>Item 8: £5 Off Ferrero(Tesco) - £5 <div id="paypal-button-8" class="paypal-button-container"></div></li>
+      <li>Item 9: £1 Off Ferrero(Tesco) - £1 <div id="paypal-button-9" class="paypal-button-container"></div></li>
+      <li>Item 10: £2 Off Crisps(Tesco) - £2 <div id="paypal-button-10" class="paypal-button-container"></div></li>
+      <li>Item 11: £3 Off Walkers(Tesco) - £2 <div id="paypal-button-11" class="paypal-button-container"></div></li>
+      <li>Item 12: £3 Off Nestle(Tesco) - £15 <div id="paypal-button-12" class="paypal-button-container"></div></li>
     </ul>
   </main>
   <script>
     function toggleForSale() {
       const list = document.getElementById('forSaleList');
       list.classList.toggle('hidden');
+      if (!list.classList.contains('hidden')) {
+        initializePayPalButtons();
+      }
     }
-    function buyItem() {
-      alert('message hzxzzyy on discord');
-      window.open('https://discordapp.com/users/1400238243374563452', '_blank');
+
+    const itemPrices = {
+      2: 50,
+      3: 50,
+      4: 10,
+      5: 2,
+      6: 1,
+      7: 1,
+      8: 5,
+      9: 1,
+      10: 2,
+      11: 2,
+      12: 15
+    };
+
+    function buyItem(itemId) {
+      if (itemId === 1) {
+        alert('Please message hzxzzyy on Discord for Item 1');
+        window.open('https://discordapp.com/users/1400238243374563452', '_blank');
+      }
+      // For other items, PayPal buttons are rendered directly
+    }
+
+    function initializePayPalButtons() {
+      Object.keys(itemPrices).forEach(itemId => {
+        paypal.Buttons({
+          createOrder: function(data, actions) {
+            return actions.order.create({
+              purchase_units: [{
+                amount: {
+                  value: itemPrices[itemId].toString(),
+                  currency_code: 'GBP'
+                },
+                description: `Purchase of Item ${itemId} from Couphub`
+              }]
+            });
+          },
+          onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+              alert('Transaction completed by ' + details.payer.name.given_name);
+              // Optionally, redirect or handle post-payment logic here
+            });
+          },
+          onError: function(err) {
+            console.error('PayPal error:', err);
+            alert('An error occurred during the payment process. Please try again.');
+          }
+        }).render(`#paypal-button-${itemId}`);
+      });
     }
   </script>
 </body>
