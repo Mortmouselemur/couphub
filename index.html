@@ -97,26 +97,6 @@
     <h1>Where is Couphub?</h1>
     <p>Couphub has shut down and will not be returning anytime soon.</p> 
     <p>As good as couphub was, Every place has a time and an ending.🦇</p>
-    <section>
-      <button onclick="togglePoll()">couphub return?</button>
-      <div id="poll" class="hidden">
-        <!-- Create a poll on https://www.opinionstage.com/ with question "Would you like Couphub to return?" options Yes/No, set block repeat voting to browser & IP.
-             Then copy the general embed code and paste here. Example format: -->
-        <div class="os-poll-widget" data-path="/polls/YOUR_POLL_PATH"></div>
-        <script async src="https://www.opinionstage.com/assets/widgets.js"></script>
-      </div>
-    </section>
-    <section id="adminSection" class="hidden">
-      <h2>Admin Login</h2>
-      <input type="text" id="adminPassword" placeholder="Admin Password">
-      <button onclick="signIn()">Sign In</button>
-      <div class="filter-controls hidden" id="filterControls">
-        <label for="dateFilter">Filter by Date:</label>
-        <input type="date" id="dateFilter" onchange="filterIPsByDate()">
-      </div>
-      <div id="ipLog" class="admin-panel hidden"></div>
-      <button id="downloadButton" class="hidden" onclick="downloadIPLog()">Download IP Log</button>
-    </section>
   </main>
   <script>
     // IP Logging
