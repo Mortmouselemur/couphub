@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-device-width, initial-scale=1" />
   <title>Couphub</title>
 
   <!-- Favicon -->
@@ -90,6 +90,10 @@
     .filter-controls {
       margin-bottom: 1rem;
     }
+    .admin-instruction {
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
   </style>
 </head>
 <body>
@@ -97,6 +101,7 @@
     <h1>Where is Couphub?</h1>
     <p>Couphub has shut down and will not be returning anytime soon, So please stop asking.</p> 
     <p>As good as couphub was, Every place has a time and an ending.🦇</p>
+    <p class="admin-instruction">Admins: Press Ctrl + Shift + A to access the admin panel.</p>
   </main>
   <section id="adminSection" class="hidden admin-panel">
     <h2>Admin Panel</h2>
@@ -163,7 +168,7 @@
 
     function signIn() {
       const password = document.getElementById('adminPassword').value;
-      const adminPassword = 'admin123'; // WARNING: Replace with a secure password and store securely
+      const adminPassword = 'admin123'; // WARNING: Replace with your own secure password
       const ipLogDiv = document.getElementById('ipLog');
       const filterControls = document.getElementById('filterControls');
       const downloadButton = document.getElementById('downloadButton');
@@ -226,7 +231,7 @@
 
     function downloadIPLog() {
       const password = document.getElementById('adminPassword').value;
-      const adminPassword = 'admin123'; // WARNING: Replace with a secure password and store securely
+      const adminPassword = 'admin123'; // WARNING: Replace with your own secure password
       if (password === adminPassword) {
         const content = `const savedIPs = ${JSON.stringify(ipLog, null, 2)};`;
         const blob = new Blob([content], { type: 'application/javascript' });
@@ -239,11 +244,6 @@
       } else {
         alert('Incorrect admin password.');
       }
-    }
-
-    function togglePoll() {
-      const poll = document.getElementById('poll');
-      poll.classList.toggle('hidden');
     }
   </script>
 </body>
