@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Couphub</title>
 
-  <!-- Favicon (change the href to your own image link) -->
-  <link rel="icon" type="image/png" href="https://cdn.discordapp.com/attachments/1306684492391383076/1410732231730663575/Couphub_Watermark.png?ex=68b21646&is=68b0c4c6&hm=c99108b8e9311e3e9279d8d546297459d896b3f936fb22141475c05ad572f35d&" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1330191087414939650/1404179057561833502/Couphub.png?ex=68b545e7&is=68b3f467&hm=1ba08149f682add14e1f11cec4990ef3a418ad2b7238662501b26d00a2080a58&=&format=webp&quality=lossless&width=750&height=750" />
 
-  <!-- Load ip_log.js from GitHub (replace with your actual repository path, e.g., /your-repo/data/ip_log.js) -->
+  <!-- Load ip_log.js -->
   <script src="/data/ip_log.js" defer></script>
 
   <style>
@@ -61,7 +61,7 @@
     section {
       margin-top: 2rem;
     }
-    input[type="text"], input[type="date"] {
+    input[type="text"], input[type="date"], input[type="password"] {
       padding: 0.5rem;
       font-size: 1rem;
       border-radius: 5px;
@@ -98,6 +98,19 @@
     <p>Couphub has shut down and will not be returning anytime soon, So please stop asking.</p> 
     <p>As good as couphub was, Every place has a time and an ending.🦇</p>
   </main>
+  <section id="adminSection" class="hidden admin-panel">
+    <h2>Admin Panel</h2>
+    <div>
+      <input type="password" id="adminPassword" placeholder="Enter admin password">
+      <button onclick="signIn()">Sign In</button>
+    </div>
+    <div id="filterControls" class="hidden filter-controls">
+      <input type="date" id="dateFilter" onchange="filterIPsByDate()">
+      <button onclick="filterIPsByDate()">Filter by Date</button>
+    </div>
+    <div id="ipLog" class="hidden"></div>
+    <button id="downloadButton" class="hidden" onclick="downloadIPLog()">Download IP Log</button>
+  </section>
   <script>
     // IP Logging
     let ipLog = [];
