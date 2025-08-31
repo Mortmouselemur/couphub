@@ -2,21 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-device-width, initial-scale=1" />
-  <title>Couphub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Couphub Admin</title>
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1330191087414939650/1404179057561833502/Couphub.png?ex=68b545e7&is=68b3f467&hm=1ba08149f682add14e1f11cec4990ef3a418ad2b7238662501b26d00a2080a58&=&format=webp&quality=lossless&width=750&height=750" />
-
-  <!-- Load ip_log.js -->
-  <script src="/data/ip_log.js" defer></script>
+  <link rel="icon" type="image/png" href="https://cdn.discordapp.com/attachments/1306684492391383076/1410732231730663575/Couphub_Watermark.png?ex=68b21646&is=68b0c4c6&hm=c99108b8e9311e3e9279d8d546297459d896b3f936fb22141475c05ad572f35d&" />
 
   <style>
     :root { color-scheme: dark; }
     html, body { height: 100%; }
     body {
       margin: 0;
-      background: #000 url('https://media.discordapp.net/attachments/1330191087414939650/1404179057561833502/Couphub.png?ex=68b545e7&is=68b3f467&hm=1ba08149f682add14e1f11cec4990ef3a418ad2b7238662501b26d00a2080a58&=&format=webp&quality=lossless&width=750&height=750') no-repeat center center fixed;
+      background: #000 url('https://media.discordapp.net/attachments/1306684492391383076/1410635744258686976/Couphub.png?ex=68b1bc69&is=68b06ae9&hm=5c21a10c3f560a98787623fcd36e87826ecb14f13549e872cadbe69eb92d2c93&=&format=webp&quality=lossless') no-repeat center center fixed;
       background-size: cover;
       color: #fff;
       font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
@@ -41,7 +38,7 @@
       position: relative;
       z-index: 2;
     }
-    h1, p { margin: 0 0 1rem; }
+    h1, h2, p { margin: 0 0 1rem; }
     button {
       background: #333;
       color: #fff;
@@ -61,190 +58,57 @@
     section {
       margin-top: 2rem;
     }
-    input[type="text"], input[type="date"], input[type="password"] {
+    input[type="text"] {
       padding: 0.5rem;
       font-size: 1rem;
       border-radius: 5px;
       border: none;
       margin-right: 0.5rem;
     }
-    .admin-panel {
-      margin-top: 1rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 5px;
+    .coupon-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
     }
-    .ip-table {
+    .coupon-gallery img {
       width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
-    .ip-table th, .ip-table td {
-      padding: 0.5rem;
+      height: auto;
+      border-radius: 5px;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      text-align: left;
-    }
-    .ip-table th {
-      background: rgba(255, 255, 255, 0.1);
-    }
-    .filter-controls {
-      margin-bottom: 1rem;
-    }
-    .admin-instruction {
-      font-size: 0.9rem;
-      opacity: 0.7;
     }
   </style>
 </head>
 <body>
   <main>
-    <h1>Where is Couphub?</h1>
-    <p>Couphub has shut down and will not be returning anytime soon, So please stop asking.</p> 
-    <p>As good as couphub was, Every place has a time and an ending.🦇</p>
-    <p class="admin-instruction">Admins: Press Ctrl + Shift + A to access the admin panel.</p>
+    <h1>Couphub Admin</h1>
+    <section id="adminLogin">
+      <h2>Admin Login</h2>
+      <input type="text" id="adminPassword" placeholder="Admin Password">
+      <button onclick="adminSignIn()">Sign In</button>
+    </section>
+    <section id="couponSection" class="hidden">
+      <h2>Coupon Images</h2>
+      <div class="coupon-gallery" id="couponGallery">
+        <!-- Add your coupon image URLs here, e.g.:
+        <img src="https://raw.githubusercontent.com/your-username/couphub/main/images/tesco-coupon.png" alt="Tesco £5 Off">
+        <img src="https://raw.githubusercontent.com/your-username/couphub/main/images/boots-coupon.png" alt="Boots Coupon">
+        -->
+      </div>
+    </section>
   </main>
-  <section id="adminSection" class="hidden admin-panel">
-    <h2>Admin Panel</h2>
-    <div>
-      <input type="password" id="adminPassword" placeholder="Enter admin password">
-      <button onclick="signIn()">Sign In</button>
-    </div>
-    <div id="filterControls" class="hidden filter-controls">
-      <input type="date" id="dateFilter" onchange="filterIPsByDate()">
-      <button onclick="filterIPsByDate()">Filter by Date</button>
-    </div>
-    <div id="ipLog" class="hidden"></div>
-    <button id="downloadButton" class="hidden" onclick="downloadIPLog()">Download IP Log</button>
-  </section>
   <script>
-    // IP Logging
-    let ipLog = [];
-    
-    // Load IPs from localStorage or ip_log.js
-    window.addEventListener('load', () => {
-      // Load from localStorage if available
-      const storedIPs = localStorage.getItem('ipLog');
-      if (storedIPs) {
-        ipLog = JSON.parse(storedIPs);
-      }
-      // Load from ip_log.js if available
-      if (typeof savedIPs !== 'undefined') {
-        ipLog = [...new Set([...ipLog, ...savedIPs].map(entry => JSON.stringify(entry)))].map(entry => JSON.parse(entry));
-        localStorage.setItem('ipLog', JSON.stringify(ipLog));
-      }
-      // Check if current IP is already logged in this session
-      const sessionIP = sessionStorage.getItem('currentIP');
-      if (!sessionIP) {
-        fetch('https://ipapi.co/json/')
-          .then(response => response.json())
-          .then(data => {
-            const newEntry = {
-              ip: data.ip,
-              timestamp: new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }),
-              country: data.country_name || 'Unknown',
-              userAgent: navigator.userAgent
-            };
-            // Only add if IP hasn't been logged in the last hour
-            const recentLog = ipLog.find(entry => 
-              entry.ip === newEntry.ip && 
-              (new Date() - new Date(entry.timestamp)) < 3600000
-            );
-            if (!recentLog) {
-              ipLog.push(newEntry);
-              localStorage.setItem('ipLog', JSON.stringify(ipLog));
-              sessionStorage.setItem('currentIP', data.ip);
-            }
-          })
-          .catch(error => console.error('Error fetching IP:', error));
-      }
-    });
-
-    // Secret key combination to show admin login (Ctrl + Shift + A)
-    document.addEventListener('keydown', (event) => {
-      if (event.ctrlKey && event.shiftKey && event.key === 'A') {
-        document.getElementById('adminSection').classList.remove('hidden');
-      }
-    });
-
-    function signIn() {
+    function adminSignIn() {
       const password = document.getElementById('adminPassword').value;
-      const adminPassword = 'admin123'; // WARNING: Replace with your own secure password
-      const ipLogDiv = document.getElementById('ipLog');
-      const filterControls = document.getElementById('filterControls');
-      const downloadButton = document.getElementById('downloadButton');
+      const adminPassword = 'admin123'; // WARNING: Replace with secure authentication (e.g., Firebase) for production
+      const loginSection = document.getElementById('adminLogin');
+      const couponSection = document.getElementById('couponSection');
       if (password === adminPassword) {
-        ipLogDiv.classList.remove('hidden');
-        filterControls.classList.remove('hidden');
-        downloadButton.classList.remove('hidden');
-        renderIPLog(ipLog);
-      } else {
-        alert('Incorrect admin password.');
-        ipLogDiv.classList.add('hidden');
-        filterControls.classList.add('hidden');
-        downloadButton.classList.add('hidden');
-      }
-    }
-
-    function renderIPLog(logs) {
-      const ipLogDiv = document.getElementById('ipLog');
-      if (logs.length) {
-        ipLogDiv.innerHTML = `
-          <h3>Logged IPs</h3>
-          <table class="ip-table">
-            <thead>
-              <tr>
-                <th>IP Address</th>
-                <th>Timestamp</th>
-                <th>Country</th>
-                <th>User Agent</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${logs.map(entry => `
-                <tr>
-                  <td>${entry.ip}</td>
-                  <td>${entry.timestamp}</td>
-                  <td>${entry.country}</td>
-                  <td>${entry.userAgent}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
-      } else {
-        ipLogDiv.innerHTML = '<p>No IPs logged yet.</p>';
-      }
-    }
-
-    function filterIPsByDate() {
-      const dateFilter = document.getElementById('dateFilter').value;
-      if (!dateFilter) {
-        renderIPLog(ipLog);
-        return;
-      }
-      const selectedDate = new Date(dateFilter).toLocaleDateString('en-GB');
-      const filteredLogs = ipLog.filter(entry => 
-        entry.timestamp.includes(selectedDate)
-      );
-      renderIPLog(filteredLogs);
-    }
-
-    function downloadIPLog() {
-      const password = document.getElementById('adminPassword').value;
-      const adminPassword = 'admin123'; // WARNING: Replace with your own secure password
-      if (password === adminPassword) {
-        const content = `const savedIPs = ${JSON.stringify(ipLog, null, 2)};`;
-        const blob = new Blob([content], { type: 'application/javascript' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'ip_log.js';
-        a.click();
-        URL.revokeObjectURL(url);
+        loginSection.classList.add('hidden');
+        couponSection.classList.remove('hidden');
       } else {
         alert('Incorrect admin password.');
       }
     }
   </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976e421d8c0c4597',t:'MTc1NjQ5MzY4MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976e43fd480f4597',t:'MTc1NjQ5Mzc1Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976e47067e284597',t:'MTc1NjQ5Mzg4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976e490dadb26544',t:'MTc1NjQ5Mzk2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976e4bedad136544',t:'MTc1NjQ5NDA4Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'976e4d3db8ac6544',t:'MTc1NjQ5NDEzNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
