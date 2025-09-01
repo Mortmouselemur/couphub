@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Couphub</title>
 
-  <!-- Favicon (change the href to your own image link) -->
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="https://media.discordapp.net/attachments/1330191087414939650/1404179057561833502/Couphub.png?ex=68b545e7&is=68b3f467&hm=1ba08149f682add14e1f11cec4990ef3a418ad2b7238662501b26d00a2080a58&=&format=webp&quality=lossless&width=750&height=750" />
 
-  <!-- Load ip_log.js from GitHub (replace with your actual repository path, e.g., /your-repo/data/ip_log.js) -->
+  <!-- Load ip_log.js from GitHub repository -->
   <script src="/data/ip_log.js" defer></script>
 
   <style>
@@ -61,7 +61,7 @@
     section {
       margin-top: 2rem;
     }
-    input[type="text"], input[type="date"] {
+    input[type="text"], input[type="password"], input[type="date"] {
       padding: 0.5rem;
       font-size: 1rem;
       border-radius: 5px;
@@ -97,6 +97,18 @@
     <h1>Where is Couphub?</h1>
     <p>Couphub has shut down and will not be returning anytime soon, So please stop asking.</p> 
     <p>As good as couphub was, Every place has a time and an ending.🦇</p>
+    <section id="adminSection" class="hidden">
+      <div class="admin-panel">
+        <h2>Admin Panel</h2>
+        <input type="password" id="adminPassword" placeholder="Enter admin password">
+        <button onclick="signIn()">Sign In</button>
+        <div id="filterControls" class="hidden filter-controls">
+          <input type="date" id="dateFilter" onchange="filterIPsByDate()">
+        </div>
+        <div id="ipLog" class="hidden"></div>
+        <button id="downloadButton" class="hidden" onclick="downloadIPLog()">Download IP Log</button>
+      </div>
+    </section>
   </main>
   <script>
     // IP Logging
@@ -118,10 +130,13 @@
       const sessionIP = sessionStorage.getItem('currentIP');
       if (!sessionIP) {
         fetch('https://ipapi.co/json/')
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) throw new Error('IP API request failed');
+            return response.json();
+          })
           .then(data => {
             const newEntry = {
-              ip: data.ip,
+              ip: data.ip || 'Unknown',
               timestamp: new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }),
               country: data.country_name || 'Unknown',
               userAgent: navigator.userAgent
@@ -134,10 +149,12 @@
             if (!recentLog) {
               ipLog.push(newEntry);
               localStorage.setItem('ipLog', JSON.stringify(ipLog));
-              sessionStorage.setItem('currentIP', data.ip);
+              sessionStorage.setItem('currentIP', data.ip || 'Unknown');
             }
           })
-          .catch(error => console.error('Error fetching IP:', error));
+          .catch(error => {
+            console.error('Error fetching IP:', error);
+          });
       }
     });
 
@@ -150,7 +167,7 @@
 
     function signIn() {
       const password = document.getElementById('adminPassword').value;
-      const adminPassword = 'admin123'; // WARNING: Replace with a secure password and store securely
+      const adminPassword = 'admin123'; // WARNING: Replace with secure auth for production
       const ipLogDiv = document.getElementById('ipLog');
       const filterControls = document.getElementById('filterControls');
       const downloadButton = document.getElementById('downloadButton');
@@ -213,7 +230,7 @@
 
     function downloadIPLog() {
       const password = document.getElementById('adminPassword').value;
-      const adminPassword = 'admin123'; // WARNING: Replace with a secure password and store securely
+      const adminPassword = 'admin123'; // WARNING: Replace with secure auth for production
       if (password === adminPassword) {
         const content = `const savedIPs = ${JSON.stringify(ipLog, null, 2)};`;
         const blob = new Blob([content], { type: 'application/javascript' });
@@ -226,11 +243,6 @@
       } else {
         alert('Incorrect admin password.');
       }
-    }
-
-    function togglePoll() {
-      const poll = document.getElementById('poll');
-      poll.classList.toggle('hidden');
     }
   </script>
 </body>
